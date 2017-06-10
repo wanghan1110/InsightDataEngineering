@@ -1,4 +1,5 @@
 import time
+import uuid
 from pyspark.sql.types import *
 from pyspark.sql.functions import udf
 
@@ -27,6 +28,10 @@ def getGMT(epoch):
     hour = time.gmtime(epoch).tm_hour
     return float(hour)
 
+# generate unique ID. return string format
+def assignID():
+    return str(uuid.uuid4())
+
 if __name__ == '__main__':
     cellLink = 's3a://cellulartest/cellular_traffic.csv'
     topoLink = 's3a://cellulartest/topology.csv'
@@ -42,4 +47,8 @@ if __name__ == '__main__':
     # define getGMT as UDF
     udf_gmt = udf(getGMT,FloatType())
     joinDF_num = joinDF_num.withColumn("hour",udf_gmt(joinDF_num['time_hour']))
+
+    # define assignID as UDF
+    id_gmt = udf(assignID,StringType())
+    joinDF_num = joinDF_num.withColumn("id",id_gmt())
 

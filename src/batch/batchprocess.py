@@ -52,3 +52,7 @@ if __name__ == '__main__':
     id_gmt = udf(assignID,StringType())
     joinDF_num = joinDF_num.withColumn("id",id_gmt())
 
+# cassandra version: (old: 3.10) 3.0.13
+# spark version: 2.1.1 
+# connector version: (old: 1.6.6-s_2.10) 2.0.1-s_2.11
+

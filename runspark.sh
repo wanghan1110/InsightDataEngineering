@@ -1,3 +1,4 @@
+eval `ssh-agent -s`
 peg fetch spark-cluster
 peg start spark-cluster
 peg service spark-cluster hadoop start

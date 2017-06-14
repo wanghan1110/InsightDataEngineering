@@ -15,10 +15,8 @@ def setVariable(variable_name, variable_value):
     my_server.set(variable_name, variable_value)
 
 if __name__ == '__main__':
-    sc = SparkContext(appName="PythonSparkStreamingKafka_RM_01")
+    sc = SparkContext(appName="Streaming-K-Means")
     sc.setLogLevel("WARN")
-
-    POOL = redis.ConnectionPool(host='10.0.0.1', port=6379, db=0)
 
     ssc = StreamingContext(sc, 5)
     topic = 'drone_data_part4'
@@ -28,6 +26,7 @@ if __name__ == '__main__':
     parsed.count().map(lambda x:'Record in this batch: %s' % x).pprint()
 
 
+    POOL = redis.ConnectionPool(host='10.0.0.1', port=6379, db=0)
     ssc.start()
     # stop after 3 minutes
     ssc.awaitTermination(timeout=180)

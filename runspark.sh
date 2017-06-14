@@ -7,3 +7,4 @@ peg service spark-cluster cassandra start
 
 peg ssh spark-cluster 1
 $SPARK_HOME/bin/pyspark --packages datastax:spark-cassandra-connector:2.0.1-s_2.11 --master spark://ip-10-0-0-11:7077
+spark-submit --packages datastax:spark-cassandra-connector:2.0.1-s_2.11 --master spark://ip-10-0-0-11:7077 batch-pre-process.py

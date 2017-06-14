@@ -3,7 +3,6 @@ os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
-import json
 
 sc = SparkContext(appName="PythonSparkStreamingKafka_RM_01")
 sc.setLogLevel("WARN")
@@ -17,6 +16,6 @@ parsed.count().map(lambda x:'Record in this batch: %s' % x).pprint()
 
 
 ssc.start()
+# stop after 3 minutes
 ssc.awaitTermination(timeout=180)
 
-# /usr/local/spark/bin/spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.2 spark_code.py

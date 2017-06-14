@@ -3,6 +3,6 @@ CREATE KEYSPACE batchdata WITH replication = {'class': 'SimpleStrategy','replica
 
 USE batchdata;
 
-//Create Table
-DROP TABLE kmeans_source
-CREATE TABLE kmeans_source (users int, lon float, lat float, time_hour int, hour float, id text PRIMARY KEY);
+//Create Table kmeans_batch
+DROP TABLE kmeans_batch
+CREATE TABLE kmeans_batch (hour float, center_id int, lon float, lat float, PRIMARY KEY (hour,center_id));

@@ -87,13 +87,14 @@ if __name__ == '__main__':
     out_num = out_num.withColumn("id",id_gmt())
 
     kmeans_list = []
+    # feature columns that are relevant to k-means clustering
     feat_cols = ['lon','lat']
     for i in range(0,24):
         out_num_byhour = out_num.where(col('hour').isin([i+0.0]))
         if out_num_byhour.count() != 0:
             # convert dataframe to RDD
             out_num_rdd_byhour = getRDD(out_num_byhour,feat_cols)
-            # k-means clustering
+            # k-means clustering, k = 5
             model = KMeans.train(out_num_rdd_byhour,5)
             center_id = 0
             for x in model.clusterCenters: 

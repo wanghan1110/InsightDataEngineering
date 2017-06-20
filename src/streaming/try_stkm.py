@@ -78,5 +78,5 @@ if __name__ == '__main__':
     ssc.awaitTermination(timeout=180)
 
     # running command: 
-    # spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.2 --master spark://ip-10-0-0-10:7077 ~/streamscript/try_stkm.py 
+ #    spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.2 --master spark://ip-10-0-0-10:7077 ~/streamscript/try_stkm.py
 

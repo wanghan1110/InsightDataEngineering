@@ -108,3 +108,6 @@ if __name__ == '__main__':
     write_cassandra(kmeans_df,"kmeans_batch","batchdata")
 
     sc.stop()
+
+# running command:
+# spark-submit --packages datastax:spark-cassandra-connector:2.0.1-s_2.11 --master spark://ip-10-0-0-11:7077 batchkmeans.py

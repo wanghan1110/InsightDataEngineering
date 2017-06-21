@@ -24,14 +24,22 @@ def logRDD(rdd):
     return rdd
 
 def get_center(rdd):
+    # print(stkm.centers)
     for i in range(len(stkm.centers)):
         key = "key-" + str(i)
-        print("Writing to redis: key = ",key,", value = ",stkm.centers[i],)
-        write_redis(key,stkm.centers[i])
+        center = str(stkm.centers[i])
+        center = center.replace('[','')
+        center = center.replace(']','')
+        center = center.split()
+        # print("Writing to redis: key = ",key,", value = ",stkm.centers[i])
+        print("Writing to redis: key = ",key,", value = ",center)
+        write_redis(key,center)
     return rdd
+
 
 def update_center(x):
     stkm.update(get_center(x),decayFactor, u"batches")
+    # stkm.update(logRDD(x),decayFactor, u"batches")
 
 def parse(lp):
     coord = lp[1].encode("utf8").split(",")
@@ -48,7 +56,7 @@ if __name__ == '__main__':
     sqlContext = SQLContext(sc)
     
     # define batch interval of 5s
-    ssc = StreamingContext(sc, 5)
+    ssc = StreamingContext(sc, 2)
 
     # define topic and brokers
     topic = 'drone_data_new'

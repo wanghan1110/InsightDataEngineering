@@ -33,6 +33,20 @@ def getCenters():
     centers = {}
     for i in range(5):
         k = "key-"+str(i)
-        centers[k] = redis_db.get(k)
-    print("getCenters in views.py is called. centers =",centers)
+        print(redis_db.get(k))
+        centers[k] = parse_center(redis_db.get(k))
     return centers
+
+@app.route('/_realtimecenter')
+def realtimecenter():
+    print('realtimecenter is called')
+    centers = json.dumps(getCenters())
+    return centers
+
+def parse_center(center_str):
+    center_str = center_str.replace("'",'')
+    center_str = center_str.replace('[','')
+    center_str = center_str.replace(']','')
+    center_list = center_str.split(',')
+    center_list = map(lambda x:float(x),center_list)
+    return center_list

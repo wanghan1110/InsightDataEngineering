@@ -16,8 +16,8 @@ class Producer(object):
         lat = random.randint(13,14)
         while True:
             time_field = datetime.now().strftime("%Y%m%d-%H%M%S")
-            lon += random.randint(-1, 1)/1000000.0
-            lat += random.randint(-1, 1)/10000000.0
+            lon += random.randint(-1, 1)/100.0
+            lat += random.randint(-1, 1)/100.0
             str_fmt = "{},{}"
             message_info = str_fmt.format(lon,lat)
             print message_info

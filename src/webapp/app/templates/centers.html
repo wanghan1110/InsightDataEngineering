@@ -2,11 +2,11 @@
 <body>
  <p id="title">UTC Clock</p>
  <p id="clock">Current Time</p>
- <p id="title">Center 1 </p><p id="c1">Center 1</p>
+<!--  <p id="title">Center 1 </p><p id="c1">Center 1</p>
  <p id="title">Center 2 </p><p id="c2">Center 2</p>
  <p id="title">Center 3 </p><p id="c3">Center 3</p>
  <p id="title">Center 4 </p><p id="c4">Center 4</p>
- <p id="title">Center 5 </p><p id="c5">Center 5</p>
+ <p id="title">Center 5 </p><p id="c5">Center 5</p> -->
 </body>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -33,26 +33,24 @@ $(function () {
  setInterval(anyFunction, 1000);
 });
 
-function centerFunction()
-{
- function get_center(k) {
- 	var center = center_json[k];
- 	// console.log(center);
- 	return center;	
- }
+// function centerFunction()
+// {
+//  function get_center(k) {
+//  	var center = center_json[k];
+//  	// console.log(center);
+//  	return center;	
+//  }
  
- document.getElementById("c1").innerHTML=get_center("key-0");
- document.getElementById("c2").innerHTML=get_center("key-1");
- document.getElementById("c3").innerHTML=get_center("key-2");
- document.getElementById("c4").innerHTML=get_center("key-3");
- document.getElementById("c5").innerHTML=get_center("key-4");
-}
+//  document.getElementById("c1").innerHTML=get_center("key-0");
+//  document.getElementById("c2").innerHTML=get_center("key-1");
+//  document.getElementById("c3").innerHTML=get_center("key-2");
+//  document.getElementById("c4").innerHTML=get_center("key-3");
+//  document.getElementById("c5").innerHTML=get_center("key-4");
+// }
 
-$(function () {
- setInterval(centerFunction, 5000);
-});
-
-</script>
+// $(function () {
+//  setInterval(centerFunction, 5000);
+// });</script>
 
 <head>
   <!-- Plotly.js -->

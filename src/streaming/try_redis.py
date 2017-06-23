@@ -4,7 +4,6 @@ os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
-from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.clustering import StreamingKMeans
 from pyspark.mllib.clustering import StreamingKMeansModel
@@ -24,30 +23,49 @@ def logRDD(rdd):
     return rdd
 
 def get_center(rdd):
-    # print(stkm.centers)
     for i in range(len(stkm.centers)):
         key = "key-" + str(i)
         center = str(stkm.centers[i])
         center = center.replace('[','')
         center = center.replace(']','')
         center = center.split()
-        # print("Writing to redis: key = ",key,", value = ",stkm.centers[i])
+
         print("Writing to redis: key = ",key,", value = ",center)
         write_redis(key,center)
+
+    collectedRdd = rdd.collect()
+
+    cnt = 1
+    for i in collectedRdd:
+        if cnt <= 120:
+            write_redis(cnt, i)
+            cnt += 1
+        else:
+            cnt = 1
+            write_redis(cnt, i)    
     return rdd
 
 
 def update_center(x):
     stkm.update(get_center(x),decayFactor, u"batches")
-    # stkm.update(logRDD(x),decayFactor, u"batches")
 
 def parse(lp):
     coord = lp[1].encode("utf8").split(",")
+    coord_id = lp[0].encode("utf8")
     vec = Vectors.dense([float(coord[0]), float(coord[1])])
+
     return vec
 
 def write_redis(k,val):
     redis_db.set(k,val)
+
+def cache_rec(lp):
+    coord_id = lp[0].encode("utf8")
+    coord = lp[1].encode("utf8").split(",")
+    print("cache_rec is called")
+    vec = Vectors.dense([coord_id,float(coord[0]), float(coord[1])])
+    print(vec)
+    return vec
 
 if __name__ == '__main__':
     sc = SparkContext(appName="Streaming-KMeans")
@@ -55,7 +73,7 @@ if __name__ == '__main__':
     spark = SparkSession(sc)
     sqlContext = SQLContext(sc)
     
-    # define batch interval of 5s
+    # define batch interval of 2s
     ssc = StreamingContext(sc, 2)
 
     # define topic and brokers
@@ -92,5 +110,5 @@ if __name__ == '__main__':
     ssc.awaitTermination()
 
     # running command: 
- #    spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.2 --master spark://ip-10-0-0-10:7077 ~/streamscript/try_redis.py
+    # spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.2 --master spark://ip-10-0-0-10:7077 ~/streamscript/try_redis.py
 

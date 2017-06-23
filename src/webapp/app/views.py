@@ -25,25 +25,41 @@ def realtime():
 
 @app.route('/centers')
 def centers():
-    centers = json.dumps(getCenters())
-    return render_template("centers.html",centers=centers)
+    centers = json.dumps(get_centers())
+    people  = json.dumps(get_people())
+    return render_template("centers.html",centers=centers,people=people)
     # return render_template("centers.html",redis_db=redis_db)
 
-def getCenters():
+def get_centers():
     centers = {}
     for i in range(5):
         k = "key-"+str(i)
-        print(redis_db.get(k))
-        centers[k] = parse_center(redis_db.get(k))
+        print("get_centers() is called",redis_db.get(k))
+        centers[k] = parse_val(redis_db.get(k))
     return centers
+
+def get_people():
+    print("get_people() is called")
+    people = {}
+    for i in range(1,121):        
+        people[i] = parse_val(redis_db.get(i))
+    return people
 
 @app.route('/_realtimecenter')
 def realtimecenter():
     print('realtimecenter is called')
-    centers = json.dumps(getCenters())
+    centers = json.dumps(get_centers())
+    # people = json.dumps(get_people())
+    print("centers in realtimecenter=",centers)
     return centers
 
-def parse_center(center_str):
+@app.route('/_realtimepeople')
+def realtimepeople():
+    print('realtimepeople is called')
+    people = json.dumps(get_people())
+    return people
+
+def parse_val(center_str):
     center_str = center_str.replace("'",'')
     center_str = center_str.replace('[','')
     center_str = center_str.replace(']','')

@@ -1,81 +1,84 @@
-import os
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.2 pyspark-shell'
+"""calculate cluster centers based on streaming data"""
+from __future__ import print_function
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
+from pyspark.mllib.clustering import StreamingKMeansModel
+from pyspark.sql import SparkSession, SQLContext
 from pyspark.mllib.linalg import Vectors
-from pyspark.mllib.regression import LabeledPoint
-from pyspark.mllib.clustering import StreamingKMeans
-from pyspark import SparkContext
-from pyspark.sql import SparkSession
-from pyspark.sql import SQLContext
-from pyspark.ml.feature import VectorAssembler, StandardScaler
-from pyspark.mllib.linalg import Vectors
-# import redis
+import redis
+
+redis_server = "localhost"
+redis_db = redis.StrictRedis(redis_server, port=6379, db=0)
+
+def get_center(rdd):
+    """get cluster centers"""
+    for i in range(len(stkm.centers)):
+        key = "key-" + str(i)
+        center = str(stkm.centers[i])
+        center = center.replace('[', '')
+        center = center.replace(']', '')
+        center = center.split()
+        write_redis(key, center)
+    collected_rdd = rdd.collect()
+    cnt = 1
+    for i in collected_rdd:
+        if cnt <= 120:
+            write_redis(cnt, i)
+            cnt += 1
+        else:
+            cnt = 1
+            write_redis(cnt, i)
+    return rdd
+
+def update_center(rdd):
+    """update cluster centers"""
+    stkm.update(get_center(rdd), decay_factor, u"batches")
 
 def parse(lp):
-    label = float(lp[lp.find('(') + 1: lp.find(')')])
-    vec = Vectors.dense(lp[lp.find('[') + 1: lp.find(']')].split(','))
-    return LabeledPoint(label, vec)
+    """parse coordinates from streaming data"""
+    coord = lp[1].encode("utf8").split(",")
+    vec = Vectors.dense([float(coord[0]), float(coord[1])])
+    return vec
 
+def write_redis(k, val):
+    """write into redis"""
+    redis_db.set(k, val)
 
 if __name__ == '__main__':
     sc = SparkContext(appName="Streaming-KMeans")
     sc.setLogLevel("WARN")
     spark = SparkSession(sc)
     sqlContext = SQLContext(sc)
-    
-    # every 5 seconds
-    ssc = StreamingContext(sc, 5)
 
-    # define topic and brokers
-    topic = 'drone_data_part4'
-    brokers = 'ec2-52-10-138-212.us-west-2.compute.amazonaws.com:9092'
+    ssc = StreamingContext(sc, 2)
 
-    # get train data (rdd obj)
-    # dataLink = 's3a://cellulartest/train-data.csv'
-    rawDataRDD = sc.textFile\
-    ('hdfs://ec2-52-10-138-212.us-west-2.compute.amazonaws.com:9000/streamscript/data/train_data.txt')
-    trainingData = rawDataRDD\
-    .map(lambda line:Vectors.dense([float(x) for x in line.strip().split(',')]))
-    trainingStream = ssc.queueStream([trainingData])
+    topic = 'drone_data'
+    brokers = 'ec2-34-211-247-230.us-west-2.compute.amazonaws.com:9092'
 
-    # get test data (rdd obj)
-    # kafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
+    kafka_stream = KafkaUtils.\
+    createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
 
-    # testingStream = ssc.queueStream(kafkaStream)
-    testData = sc.textFile\
-    ('hdfs://ec2-52-10-138-212.us-west-2.compute.amazonaws.com:9000/streamscript/data/test_data.txt')\
-    .map(parse)
-    testingStream = ssc.queueStream([testData])
-    
-    # create a model with (random for now )cluter center  
-    # specify the number of clusters to find, k = 5
-    model = StreamingKMeans(k = 2, decayFactor = 1.0).\
-    setRandomCenters(2, 1.0, 0)
+    init_centers = [[111.08575106060509, 13.134825358711282],\
+    [111.08120771714472, 13.187724105098596],\
+    [111.17965587636363, 13.1889099103317],\
+    [111.07777050101427, 13.071335633938101],\
+    [111.02132026192659, 13.163110522505603]]
 
+    init_weights = [1.0, 1.0, 1.0, 1.0, 1.0]
 
-    # register the streams for training and testing
-    model.trainOn(trainingStream)
-    result = model.predictOnValues(testingStream.map(lambda lp: (lp.label, lp.features)))
-    print("Final centers: " + str(model.latestModel().centers))
+    stkm = StreamingKMeansModel(init_centers, init_weights)
 
-    # print predicted cluster assignments on new data points
-    result.pprint()
-        
-    # Redis connection
-    # POOL = redis.ConnectionPool(host='10.0.0.1', port=6379, db=0)
+    decay_factor = 0.0
 
-    # print(model.clusterCenters)
-    
-    
-    # topic = 'drone_data_part4'
-    # brokers = 'ec2-52-10-138-212.us-west-2.compute.amazonaws.com:9092'
-    # kafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
-    # parsed = kafkaStream.map(lambda v: 1)
-    # parsed.count().map(lambda x:'Record in this batch: %s' % x).pprint()
+    test_stream = kafka_stream.map(parse)
+
+    test_stream.foreachRDD(update_center)
 
     ssc.start()
-    # stop after 3 minutes
-    ssc.awaitTermination(timeout=180)
-    # print("Final centers: " + str(model.latestModel().centers))
+    ssc.awaitTermination()
+
+    """running command:
+    spark-submit --packages org.apache.spark:
+    spark-streaming-kafka-0-8_2.11:2.0.2
+    --master spark://ip-10-0-0-10:7077 ~/streamscript/try_redis.py"""

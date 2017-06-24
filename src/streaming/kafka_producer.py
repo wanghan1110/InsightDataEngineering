@@ -21,7 +21,7 @@ class Producer(object):
             str_fmt = "{},{}"
             message_info = str_fmt.format(lon,lat)
             print message_info
-            self.producer.send_messages('drone_data_new', source_symbol, message_info)
+            self.producer.send_messages('drone_data', source_symbol, message_info)
 
 if __name__ == "__main__":
     args = sys.argv

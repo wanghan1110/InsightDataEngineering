@@ -77,7 +77,7 @@ if __name__ == '__main__':
     ssc = StreamingContext(sc, 2)
 
     # define topic and brokers
-    topic = 'drone_data_new'
+    topic = 'drone_data'
     brokers = 'ec2-34-211-247-230.us-west-2.compute.amazonaws.com:9092'
 
     kafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})

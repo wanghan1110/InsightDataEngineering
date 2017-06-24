@@ -37,6 +37,7 @@ trace2 = {
 var data = [ trace2, trace1 ];
 
 var layout = {
+
   legend: {
     y: 0.5,
     yref: 'paper',
@@ -97,6 +98,7 @@ setInterval(
     console.log(trace2)
     var data = [ trace2,trace1 ];
     var layout = { 
+
                     legend: {
                       y: 0.5,
                       yref: 'paper',

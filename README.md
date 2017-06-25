@@ -25,4 +25,4 @@ For the batch part of the pipeline, I used Spark to process the data, which were
 
 - `./src/` contains all relevant files for replicating the batch and streaming portions of the project
 
-- `./sample-data` contains some sample Venmo transaction data
+- `./sample-data` contains some sample cellular signal data

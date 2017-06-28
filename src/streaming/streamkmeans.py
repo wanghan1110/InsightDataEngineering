@@ -7,6 +7,7 @@ from pyspark.mllib.clustering import StreamingKMeansModel
 from pyspark.sql import SparkSession, SQLContext
 from pyspark.mllib.linalg import Vectors
 import redis
+import datetime as dt
 
 redis_server = "localhost"
 redis_db = redis.StrictRedis(redis_server, port=6379, db=0)
@@ -59,11 +60,14 @@ if __name__ == '__main__':
     kafka_stream = KafkaUtils.\
     createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
 
-    init_centers = [[111.08575106060509, 13.134825358711282],\
-    [111.08120771714472, 13.187724105098596],\
-    [111.17965587636363, 13.1889099103317],\
-    [111.07777050101427, 13.071335633938101],\
-    [111.02132026192659, 13.163110522505603]]
+    # init_centers = [[111.08575106060509, 13.134825358711282],\
+    # [111.08120771714472, 13.187724105098596],\
+    # [111.17965587636363, 13.1889099103317],\
+    # [111.07777050101427, 13.071335633938101],\
+    # [111.02132026192659, 13.163110522505603]]
+    cur_time = dt.datetime.now().hour
+    init_centers = redis_db.get(cur_time)
+
 
     init_weights = [1.0, 1.0, 1.0, 1.0, 1.0]
 

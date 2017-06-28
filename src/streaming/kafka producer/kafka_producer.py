@@ -20,9 +20,9 @@ class Producer(object):
             lat += random.randint(-1, 1)/100.0
             str_fmt = "{},{}"
             message_info = str_fmt.format(lon, lat)
-            print message_info
+            # print message_info
             self.producer.send_messages\
-            ('drone_data', source_symbol, message_info)
+            ('drone_data_demo', source_symbol, message_info)
 
 if __name__ == "__main__":
     args = sys.argv

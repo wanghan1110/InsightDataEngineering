@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     ssc = StreamingContext(sc, 2)
 
-    topic = 'drone_data'
+    topic = 'drone_data_demo'
     brokers = 'ec2-34-211-247-230.us-west-2.compute.amazonaws.com:9092'
 
     kafka_stream = KafkaUtils.\
